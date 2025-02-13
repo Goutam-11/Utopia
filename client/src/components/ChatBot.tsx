@@ -88,28 +88,38 @@ export default function ChatBot() {
 
       {/* Chat Window */}
       <div
-        className={`fixed bottom-4 left-4 w-96 bg-zinc-800 rounded-2xl shadow-2xl transition-all duration-300 z-50 ${
+        className={`fixed bottom-4 left-4 w-96 bg-black rounded-2xl shadow-2xl transition-all duration-300 z-50 border border-white/50 ${
           isOpen
-            ? "scale-100 opacity-100"
+            ? "scale-100 opacity-100 shadow-[0_0_15px_rgba(255,255,255,0.4)]"
             : "scale-95 opacity-0 pointer-events-none"
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray/20 bg-cream-100 text-black rounded-t-2xl">
-          <div className="flex items-center space-x-2">
-            <Bot className="h-6 w-6 text-black" /> {/* Bot icon in black */}
-            <span className="font-semibold">Event Assistant</span>
+        <div className="border-b border-white/20 bg-black text-green-500 font-mono">
+          <pre className="text-center p-2 text-xs">
+            {`
+ █    █ ████████  ████  ████  ███  ████ 
+ █    █    ██    █    █ █   █  █  █   █
+ █    █    ██    █    █ █▄▄▄█  █  █▄▄▄█
+ █    █    ██    █    █ █      █  █   █
+  █▄▄█     ██     ████  █      █  █   █
+`}
+          </pre>
+          <div className="flex items-center justify-between p-4">
+            <div className="flex items-center space-x-2">
+              <span className="font-bold">$ event-assistant</span>
+            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-white/70 hover:text-white transition-colors"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="p-1 hover:bg-gray/10 rounded-full transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
         </div>
 
         {/* Messages */}
-        <div className="h-96 overflow-y-auto p-4 space-y-4">
+        <div className="h-96 overflow-y-auto p-4 space-y-4 font-mono">
           {messages.map((message) => (
             <div
               key={message.id}
@@ -117,31 +127,26 @@ export default function ChatBot() {
                 message.isBot ? "justify-start" : "justify-end"
               }`}
             >
-              <div
-                className={`max-w-[80%] p-3 rounded-2xl ${
-                  message.isBot
-                    ? "bg-gray-100 text-gray-800"
-                    : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
-                }`}
-              >
+              <div className={`max-w-[80%] p-3 text-white`}>
+                {message.isBot ? "ai$ " : "user$ "}
                 {message.text}
               </div>
             </div>
           ))}
           {isTyping && (
             <div className="flex justify-start">
-              <div className="bg-gray-100 text-gray-800 p-3 rounded-2xl">
+              <div className="text-white">
                 <div className="flex space-x-2">
                   <div
-                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-white rounded-full animate-pulse"
                     style={{ animationDelay: "0ms" }}
                   />
                   <div
-                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-white rounded-full animate-pulse"
                     style={{ animationDelay: "150ms" }}
                   />
                   <div
-                    className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                    className="w-2 h-2 bg-white rounded-full animate-pulse"
                     style={{ animationDelay: "300ms" }}
                   />
                 </div>
@@ -151,21 +156,22 @@ export default function ChatBot() {
         </div>
 
         {/* Input */}
-        <div className="p-4 border-t border-gray">
+        <div className="p-4 border-t border-white/20">
           <div className="flex items-center space-x-2">
+            <span className="text-green-500 font-mono">$</span>
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Ask me anything..."
-              className="flex-1 p-[10px] border border-gray rounded-lg focus:outline-none focus:ring focus:ring-purple-600"
+              placeholder="Enter command..."
+              className="flex-1 p-2 bg-black text-white font-mono border-none focus:outline-none focus:ring-0 placeholder-white/30"
             />
             <button
               onClick={handleSend}
-              className="p-[10px] bg-cream-300 text-black rounded-lg hover:bg-opacity-[80%] transition-opacity"
+              className="text-white/70 hover:text-white transition-colors"
             >
-              <Send className="h-[20px] w-[20px]" />
+              <Send className="h-5 w-5" />
             </button>
           </div>
         </div>

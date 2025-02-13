@@ -28,13 +28,12 @@ import type {
   InputSubmitTransactionData,
   PendingTransactionResponse,
 } from "@aptos-labs/wallet-adapter-core";
-import { v4 as uuidv4 } from 'uuid';
+import { ChatOpenAI } from "@langchain/openai";
+import { v4 as uuidv4 } from "uuid";
 uuidv4();
 
-
-export const moduleAddress = "903a8c9e37c744674108ea208c81e60ff09d78c612ffa9df78396e99634f8204";
-
-
+export const moduleAddress =
+  "903a8c9e37c744674108ea208c81e60ff09d78c612ffa9df78396e99634f8204";
 
 export interface Event {
   id: string;
@@ -74,8 +73,9 @@ interface AIGeneratedEventDetails {
 
 const aptosConfig = new AptosConfig({ network: Network.TESTNET });
 const aptos = new Aptos(aptosConfig);
-const apiKey = "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"; // Add your API key here
+const apiKey = "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"; // Add your API key here
 const client = new HfInference(apiKey);
+const VENICE_API_KEY = "H3N40Z9HbGJWwDs7Ac-tlKrOBw9dRLflirVqz2mfSt";
 const eventPromptTemplate = new PromptTemplate({
   inputVariables: ["details"],
   template: `Based on the provided event details, generate a JSON object with the following fields:
@@ -87,10 +87,8 @@ const eventPromptTemplate = new PromptTemplate({
     - category: A suitable category from option "music/tech/sports/arts".
     - imagePrompt: A creative text prompt to generate an event image.
     Event Details: {details}
-    Output only the JSON object without additional text.`,
+    Only provide the output as a JSON object.`,
 });
-// const { account, signAndSubmitTransaction } = useWallet();
-
 
 export default function CreateEvent() {
   const { user } = useUser();
@@ -131,7 +129,21 @@ export default function CreateEvent() {
     }
   }, []);
 
-  
+  const llm = new ChatOpenAI({
+    modelName: "meta-llama/Llama-3.3-70B-Instruct",
+    apiKey:
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZXZidWxjaGFuZGFuaThAZ21haWwuY29tIiwiaWF0IjoxNzM5MTIyNTk4fQ.5lYeeFkVuhmPbEg-pK8CNevidDBFQiwXxaJmaVwyMcg", // you can input your API key in plaintext, but this is not recommended
+    configuration: {
+      baseURL: "https://api.hyperbolic.xyz/v1",
+      defaultHeaders: {
+        "Content-Type": "application/json",
+      },
+    },
+
+    maxTokens: 3000, // specifies the maximum number of tokens to generate
+    temperature: 0.6, // specifies the randomness of the output
+    topP: 0.7, // specifies the top-p sampling parameter
+  });
 
   const saveDraft = () => {
     localStorage.setItem("eventDraft", JSON.stringify(formData));
@@ -169,21 +181,22 @@ export default function CreateEvent() {
 
   const generateImage = async (prompt: string): Promise<string> => {
     setIsGeneratingImage(true);
+
     try {
-      const response = await fetch(
-        "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0",
-        {
-          headers: {
-            Authorization: `Bearer ${apiKey}`,
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-          body: JSON.stringify({ inputs: prompt }),
-        }
-      );
-      const result = await response.blob();
+      const response = await client.textToImage({
+        model: "stabilityai/stable-diffusion-xl-base-1.0",
+        inputs: prompt,
+        parameters: {
+          negative_prompt: "blurry, bad quality, distorted",
+          num_inference_steps: 30,
+          guidance_scale: 7.5,
+        },
+      });
+
+      const result = response;
       const imageObjectURL = URL.createObjectURL(result);
       setImagePreview(imageObjectURL);
+
       const imageFile = new File([result], "generated-event-image.png", {
         type: "image/png",
       });
@@ -212,7 +225,7 @@ export default function CreateEvent() {
       toast("Listening...", { icon: "🎙️" });
     };
 
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
+    recognition.onresult = (event: any) => {
       const transcript = event.results[0][0].transcript;
       setAiDescription(transcript);
       toast.success("Speech converted to text!");
@@ -242,15 +255,15 @@ export default function CreateEvent() {
         details: structuredDetails,
       });
 
-      const chatCompletion = await client.chatCompletion({
-        model: "meta-llama/Llama-3.2-3B-Instruct",
-        messages: [{ role: "user", content: prompt }],
-        max_tokens: 2000,
-        temperature: 0.65,
-      });
+      const response = await llm.invoke([{ role: "user", content: prompt }]);
+      const cleanedResponse = String(response.content)
+        .replace(/```json\s*/g, "") // Remove opening ```json
+        .replace(/```\s*$/g, "") // Remove closing ```
+        .trim();
 
-      const output = String(chatCompletion.choices[0].message.content);
-      const eventDetails = JSON.parse(output) as AIGeneratedEventDetails;
+      const eventDetails = JSON.parse(
+        cleanedResponse
+      ) as AIGeneratedEventDetails;
 
       if (eventDetails) {
         setFormData((prev) => ({
@@ -292,60 +305,85 @@ export default function CreateEvent() {
       setFormData((prev) => ({ ...prev, totalTickets: value }));
     }
   };
-  
+
   const { account, signAndSubmitTransaction } = useWallet();
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-  
+
     if (!eventDate) {
       toast.error("Please select an event date");
       return;
     }
-  
+
     try {
       setIsSubmitting(true);
-  
-      // Prepare eventDetails directly from formData and other inputs
+
       const eventDetails = {
         title: formData.title,
         description: formData.description,
         price: formData.price,
-        date: eventDate.toISOString(), // Use the selected event date
+        date: eventDate.toISOString(),
         location: formData.location,
         category: formData.category,
         totalTickets: formData.totalTickets,
         organizerName: formData.organizerName,
         organizerContact: formData.organizerContact,
-        image: ipfsHash || null, // Use the IPFS hash if available
+        image: ipfsHash || null,
       };
-  
-      console.log("Event Details:", eventDetails);
-  
-      // Prepare Aptos transaction
+
       const transaction: InputTransactionData = {
         data: {
-          function: `${moduleAddress}::myutopia::SoonamiEvent::create_event`, // Replace with your module address and function path
+          function: `${moduleAddress}::AptosSoonami::create_event`,
           functionArguments: [
-            
-            eventDetails.title, 
+            eventDetails.totalTickets,
+            eventDetails.title,
             eventDetails.description,
-            eventDetails.price, 
-            
+            eventDetails.price,
           ],
         },
       };
-  
-      // Sign and submit the transaction
+
       const txResponse = await signAndSubmitTransaction(transaction);
       await aptos.waitForTransaction({ transactionHash: txResponse.hash });
-  
+      console.log("Transaction successful:", txResponse.hash);
+
+      // First, send to upsert endpoint
+      const upsertResponse = await fetch("http://localhost:4001/upsert", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(eventDetails),
+      });
+
+      if (!upsertResponse.ok) {
+        throw new Error("Failed to upsert event details");
+      }
+
+      // Then, create event in database
+      const formDataObj = new FormData();
+      Object.entries(eventDetails).forEach(([key, value]) => {
+        if (value !== null) {
+          formDataObj.append(key, value.toString());
+        }
+      });
+
+      // If there's an image file, append it
+      if (formData.image) {
+        formDataObj.append("image", formData.image);
+      }
+
+      await createEvent(formDataObj);
+
       // Success feedback
       toast.success("Event created successfully!");
       localStorage.removeItem("eventDraft");
       navigate("/events");
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to create event");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to create event"
+      );
     } finally {
       setIsSubmitting(false);
     }

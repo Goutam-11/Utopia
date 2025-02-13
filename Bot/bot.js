@@ -1,9 +1,10 @@
 import { HfInference } from "@huggingface/inference";
-import { Pinecone} from "@pinecone-database/pinecone";
+import { Pinecone } from "@pinecone-database/pinecone";
 import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
-import {v4 as uuidv4} from 'uuid'
+import { v4 as uuidv4 } from "uuid";
+import { ChatOpenAI } from "@langchain/openai";
 
 dotenv.config();
 const apiKey = process.env.HUGGINGFACEHUB_API_KEY; // Use your Hugging Face API key
@@ -13,13 +14,27 @@ app.use(cors());
 app.use(express.json());
 
 // Initialize Pinecone client
-const piKey=process.env.PINECONE_API_KEY;
+const piKey = process.env.PINECONE_API_KEY;
 
-const pc = new Pinecone( {
-  apiKey: piKey
-})
+const pc = new Pinecone({
+  apiKey: piKey,
+});
 
+const llm = new ChatOpenAI({
+  modelName: "meta-llama/Llama-3.3-70B-Instruct",
+  apiKey:
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZXZidWxjaGFuZGFuaThAZ21haWwuY29tIiwiaWF0IjoxNzM5MTIyNTk4fQ.5lYeeFkVuhmPbEg-pK8CNevidDBFQiwXxaJmaVwyMcg", // you can input your API key in plaintext, but this is not recommended
+  configuration: {
+    baseURL: "https://api.hyperbolic.xyz/v1",
+    defaultHeaders: {
+      "Content-Type": "application/json",
+    },
+  },
 
+  maxTokens: 2000, // specifies the maximum number of tokens to generate
+  temperature: 0.65, // specifies the randomness of the output
+  topP: 0.7, // specifies the top-p sampling parameter
+});
 
 const indexName = "goutam";
 var model = "multilingual-e5-large"; // Hugging Face embedding model
@@ -27,25 +42,28 @@ var model = "multilingual-e5-large"; // Hugging Face embedding model
 // Define the upsert route for new events
 app.post("/upsert", async (req, res) => {
   try {
-    const event = req.body; // Assume event data is sent from the frontend
+    const event = req.body;
     const text = `Title: ${event.title},Description: ${event.description},Location: ${event.location},Date: ${event.date},Price: ${event.price},TotalTickets: ${event.totalTickets},OrganizerName: ${event.organizerName},OrganizerContact: ${event.organizerContact},Category: ${event.category}`;
-    const data = { id: uuidv4() ,text: text};
-    // Generate embeddings for the event (you can use title, description, etc.)
-    const embeddings = await pc.inference.embed(
+
+    // Single data object with unique ID
+    const id = uuidv4();
+
+    // Generate embedding for single text
+    const embedding = await pc.inference.embed(
       model,
-      data.map((d) => d.text),
+      [text], // API expects array input even for single text
       { inputType: "passage", truncate: "END" }
     );
 
-    // Create a vector to upsert into Pinecone
-   const vector = data.map((d, i) => ({
-     id: d.id,
-     values: embeddings[i].values,
-     metadata: { text: d.text },
-   }));
+    // Create single vector
+    const vector = {
+      id: id,
+      values: embedding[0].values,
+      metadata: { text: text },
+    };
 
     const index = pc.index(indexName);
-    await index.namespace("utopia-bot").upsert([vector]); // Upsert the vector
+    await index.namespace("utopia-bot").upsert([vector]); // API expects array input
 
     res.status(200).json({ message: "Event upserted successfully!" });
   } catch (error) {
@@ -57,40 +75,40 @@ app.post("/upsert", async (req, res) => {
 // Handle user queries with the /chat route
 app.post("/chat", async (req, res) => {
   try {
-    const userQuery = req.body.query // Frontend sends user query
-    console.log(userQuery)
-    var model="multilingual-e5-large"
+    const userQuery = req.body.query; // Frontend sends user query
+   
+    var model = "multilingual-e5-large";
     // Convert the query into a numerical vector
-    const queryEmbedding = await pc.inference.embed(
-      model,
-      [userQuery],
-      {inputType:'query'}
-  );
-    console.log(queryEmbedding);
+    const queryEmbedding = await pc.inference.embed(model, [userQuery], {
+      inputType: "query",
+    });
+  
+
     // Search the Pinecone index for top matches
     const index = pc.index(indexName);
     const queryResponse = await index.namespace("utopia-bot").query({
       topK: 1,
-      vector: queryEmbedding[0].values, // Query embedding
+      vector: queryEmbedding[0].values,
       includeValues: false,
       includeMetadata: true,
     });
 
-    // Generate a response using the retrieved event data
-    const chatCompletion = await client.chatCompletion({
-      model: "meta-llama/Llama-3.2-3B-Instruct",
-      messages: [
-        {
-          role: "user",
-          content: `Answer from the database response: ${JSON.stringify(
-            queryResponse
-          )} for user query: ${userQuery}`,
-        },
-      ],
-      max_tokens: 500,
-    });
+    // Generate a response using ChatOpenAI instead of Hugging Face
+    const response = await llm.invoke([
+      {
+        role: "system",
+        content:
+          "You are a helpful assistant that provides information about events based on the database response.",
+      },
+      {
+        role: "user",
+        content: `Answer from the database response: ${JSON.stringify(
+          queryResponse
+        )} for user query: ${userQuery}`,
+      },
+    ]);
 
-    const reply = chatCompletion.choices[0].message.content;
+    const reply = response.content;
     res.json({ reply });
   } catch (error) {
     console.error("Error during chat handling:", error);
