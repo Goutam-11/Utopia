@@ -1,0 +1,37 @@
+# 🏆 Utopia - Ai and Blockchain Event Ticketing Platform
+
+Utopia is a decentralized event management and ticketing platform that harnesses the power of blockch
+ain and AI to offer a seamless experience for event organizers and attendees. 
+[Video Link](https://youtu.be/U33PISp47U0)
+
+![Screenshot 2025-02-10 024011](https://github.com/user-attachments/assets/487a6a3b-1e9f-42af-b520-dade043b3f3c)
+
+## 🚀 Features
+- **NFT Ticketing:** Events and tickets are minted as **NFTs** on the **Base network**, preventing ticket duplication.
+- **AI Event Recommendations:** Custom AI models analyze event data and suggest events based on user preferences.
+- **IPFS/Arweave Storage:** Ensures **decentralized and permanent** storage of event details and ticket metadata.
+- **Secure Ticket Resale:** Secondary market transactions occur within Utopia, preventing fraud.
+- **Wallet Integration:** Connect **MetaMask, Coinbase Wallet**, and other Web3 wallets.
+- **Low Gas Fees:** Leveraging Base Layer-2 for cost-effective transactions.
+
+## 🎟️ How It Works
+1. **Event Creation:** Organizers create an event, which is minted as an NFT.
+2. **Ticket Sales:** Attendees purchase NFT-based tickets using cryptocurrency.
+3. **Verification:** Tickets are verified via **on-chain smart contracts**.
+4. **Resale & Transfer:** Users can resell tickets within the platform, ensuring legitimacy.
+
+## 📦 Tech Stack
+- **Blockchain:** Aptos
+- **Smart Contracts:** Move
+- **Frontend:** React, Vite, TailwindCSS
+- **Storage:** IPFS
+- **AI Models:** Langchain, Hyperbolic on eigenlayer
+- **Wallets:** MetaMask, Petra Wallet
+
+- [Aptos Contracts](https://explorer.aptoslabs.com/account/0x903a8c9e37c744674108ea208c81e60ff09d78c612ffa9df78396e99634f8204/modules/run/AptosEvent5/create_event?network=testnet)
+
+## 🛠️ Setup & Deployment
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/your-username/utopia.git
+   cd utopia
