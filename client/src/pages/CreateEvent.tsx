@@ -32,8 +32,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import { v4 as uuidv4 } from "uuid";
 uuidv4();
 
-export const moduleAddress =
-  "903a8c9e37c744674108ea208c81e60ff09d78c612ffa9df78396e99634f8204";
+
 
 export interface Event {
   id: string;
@@ -73,9 +72,11 @@ interface AIGeneratedEventDetails {
 
 const aptosConfig = new AptosConfig({ network: Network.TESTNET });
 const aptos = new Aptos(aptosConfig);
-const apiKey = "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"; // Add your API key here
+const apiKey = import.meta.env.HUGGINGFACE_API_KEY;
+export const moduleAddress =
+  "module_address";// Add your API key here
 const client = new HfInference(apiKey);
-const VENICE_API_KEY = "H3N40Z9HbGJWwDs7Ac-tlKrOBw9dRLflirVqz2mfSt";
+
 const eventPromptTemplate = new PromptTemplate({
   inputVariables: ["details"],
   template: `Based on the provided event details, generate a JSON object with the following fields:
@@ -131,8 +132,8 @@ export default function CreateEvent() {
 
   const llm = new ChatOpenAI({
     modelName: "meta-llama/Llama-3.3-70B-Instruct",
-    apiKey:
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZXZidWxjaGFuZGFuaThAZ21haWwuY29tIiwiaWF0IjoxNzM5MTIyNTk4fQ.5lYeeFkVuhmPbEg-pK8CNevidDBFQiwXxaJmaVwyMcg", // you can input your API key in plaintext, but this is not recommended
+    // apiKey:
+    //   apikey, // you can input your API key in plaintext, but this is not recommended
     configuration: {
       baseURL: "https://api.hyperbolic.xyz/v1",
       defaultHeaders: {

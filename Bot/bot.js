@@ -76,13 +76,12 @@ app.post("/upsert", async (req, res) => {
 app.post("/chat", async (req, res) => {
   try {
     const userQuery = req.body.query; // Frontend sends user query
-   
+
     var model = "multilingual-e5-large";
     // Convert the query into a numerical vector
     const queryEmbedding = await pc.inference.embed(model, [userQuery], {
       inputType: "query",
     });
-  
 
     // Search the Pinecone index for top matches
     const index = pc.index(indexName);
