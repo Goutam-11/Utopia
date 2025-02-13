@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
   
 export const aptos = new Aptos();
 // change this to be your module account address
-export const moduleAddress = "module_address";
+export const moduleAddress = "903a8c9e37c744674108ea208c81e60ff09d78c612ffa9df78396e99634f8204";
 
 
 function App() {
