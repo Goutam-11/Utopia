@@ -1,20 +1,27 @@
-export const moduleAddress="0x903a8c9e37c744674108ea208c81e60ff09d78c612ffa9df78396e99634f8204";
+export const moduleAddress =
+  "0x903a8c9e37c744674108ea208c81e60ff09d78c612ffa9df78396e99634f8204";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Navbar } from "./components/Navbar.tsx";
 import { Footer } from "./components/Footer.tsx";
 import { Home } from "./pages/Home.tsx";
 import Events from "./pages/Events.tsx";
-import CreateEvent from './pages/CreateEvent.tsx';
+import CreateEvent from "./pages/CreateEvent.tsx";
 import SignInPage from "./pages/sign-in.tsx";
 import ChatBot from "./components/ChatBot.tsx";
 import MyEvents from "./pages/MyEvents.tsx";
 import { Dashboard } from "./pages/Dashboard.tsx";
-import ErrorBoundary from './ErrorBoundary.tsx'
-import { Toaster } from 'react-hot-toast';
+import ErrorBoundary from "./ErrorBoundary.tsx";
+import { Toaster } from "react-hot-toast";
+import { useWallet } from "@aptos-labs/wallet-adapter-react";
+import useRegisterUser from "./hooks/useRegisterUser.ts";
 
 function App() {
+  const { connected, account } = useWallet();
+  useEffect(()=>{ if (connected && account) {
+    useRegisterUser();
+  }},[connected, account]);
   return (
     <Router>
       <ErrorBoundary>

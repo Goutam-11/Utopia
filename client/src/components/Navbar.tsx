@@ -40,7 +40,7 @@ export const Navbar = () => {
       animate={{ y: 0, opacity: 1 }}
       className="fixed top-4 z-50 bg-black/30 backdrop-blur-md border border-cream-100/10 rounded-full px-6 py-2 w-full max-w-4xl mx-auto"
     >
-      <div className="flex  items-center justify-between gap-3">
+      <div className="flex  items-center justify-around gap-5">
         {/* Logo with Spin Effect */}
         <Link to="/" className="flex items-center gap-2">
           <motion.div

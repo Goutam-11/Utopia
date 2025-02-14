@@ -75,7 +75,7 @@ const aptosConfig = new AptosConfig({ network: Network.TESTNET });
 const aptos = new Aptos(aptosConfig);
 const apiKey = "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"; // Add your API key here
 const client = new HfInference(apiKey);
-const VENICE_API_KEY = "H3N40Z9HbGJWwDs7Ac-tlKrOBw9dRLflirVqz2mfSt";
+const VENICE_API_KEY = "Ks2uFB4mrRwHCZUpFFhL3DYeiDMVzwwSa1yt9ib11P";
 const eventPromptTemplate = new PromptTemplate({
   inputVariables: ["details"],
   template: `Based on the provided event details, generate a JSON object with the following fields:
@@ -132,17 +132,18 @@ export default function CreateEvent() {
   const llm = new ChatOpenAI({
     modelName: "meta-llama/Llama-3.3-70B-Instruct",
     apiKey:
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZXZidWxjaGFuZGFuaThAZ21haWwuY29tIiwiaWF0IjoxNzM5MTIyNTk4fQ.5lYeeFkVuhmPbEg-pK8CNevidDBFQiwXxaJmaVwyMcg", // you can input your API key in plaintext, but this is not recommended
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkZXZidWxjaGFuZGFuaThAZ21haWwuY29tIiwiaWF0IjoxNzM5MTIyNTk4fQ.5lYeeFkVuhmPbEg-pK8CNevidDBFQiwXxaJmaVwyMcg",
     configuration: {
       baseURL: "https://api.hyperbolic.xyz/v1",
       defaultHeaders: {
         "Content-Type": "application/json",
       },
     },
-
-    maxTokens: 3000, // specifies the maximum number of tokens to generate
-    temperature: 0.6, // specifies the randomness of the output
-    topP: 0.7, // specifies the top-p sampling parameter
+    maxTokens: 2000, // Reduced to avoid unnecessary verbosity
+    temperature: 0.5, // Reduced for more focused and consistent outputs
+    topP: 0.3, // Reduced to make responses more deterministic
+    presencePenalty: 0.0, // Added to prevent topic drift
+    frequencyPenalty: 0.0, // Added to maintain consistent language
   });
 
   const saveDraft = () => {
@@ -183,21 +184,33 @@ export default function CreateEvent() {
     setIsGeneratingImage(true);
 
     try {
-      const response = await client.textToImage({
-        model: "stabilityai/stable-diffusion-xl-base-1.0",
-        inputs: prompt,
-        parameters: {
-          negative_prompt: "blurry, bad quality, distorted",
-          num_inference_steps: 30,
-          guidance_scale: 7.5,
-        },
-      });
+      const response = await fetch(
+        "https://api.venice.ai/api/v1/image/generate",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${VENICE_API_KEY}`,
+          },
+          body: JSON.stringify({
+            model: "fluently-xl",
+            prompt: prompt,
+            width: 1024,
+            height: 1024,
+            return_binary: true,
+          }),
+        }
+      );
 
-      const result = response;
-      const imageObjectURL = URL.createObjectURL(result);
+      if (!response.ok) {
+        throw new Error("Failed to generate image");
+      }
+
+      const blob = await response.blob();
+      const imageObjectURL = URL.createObjectURL(blob);
       setImagePreview(imageObjectURL);
 
-      const imageFile = new File([result], "generated-event-image.png", {
+      const imageFile = new File([blob], "generated-event-image.png", {
         type: "image/png",
       });
       setFormData((prev) => ({ ...prev, image: imageFile }));
