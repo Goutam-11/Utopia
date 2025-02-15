@@ -35,7 +35,7 @@ ain and AI to offer a seamless experience for event organizers and attendees.
 - **AI Models:** Langchain, Hyperbolic on eigenlayer
 - **Wallets:** MetaMask, Petra Wallet
 - **VENICE AI API:** For the uncensored Ai endpoint to generate event images for the posters to use in the cards.
-
+- **Hyperboli Endpoint on Eigenlayer:** For Backend Bot training on custom data.
 - [Aptos Contracts](https://explorer.aptoslabs.com/account/0x903a8c9e37c744674108ea208c81e60ff09d78c612ffa9df78396e99634f8204/modules/run/AptosEvent5/create_event?network=testnet)
 ![Screenshot 2025-02-10 024011](https://github.com/user-attachments/assets/487a6a3b-1e9f-42af-b520-dade043b3f3c)
 
