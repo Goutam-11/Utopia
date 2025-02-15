@@ -85,7 +85,7 @@ const eventPromptTemplate = new PromptTemplate({
     - date: A suitable date in "MM/DD/YYYY" format.
     - location: A suitable location as in prompt.
     - category: A suitable category from option "music/tech/sports/arts".
-    - imagePrompt: A creative text prompt to generate an event image.
+    - imagePrompt: A creative text prompt to generate an event image poster.
     Event Details: {details}
     Only provide the output as a JSON object.`,
 });
@@ -140,8 +140,8 @@ export default function CreateEvent() {
       },
     },
     maxTokens: 2000, // Reduced to avoid unnecessary verbosity
-    temperature: 0.5, // Reduced for more focused and consistent outputs
-    topP: 0.3, // Reduced to make responses more deterministic
+    temperature: 0.4, // Reduced for more focused and consistent outputs
+    topP: 0.2, // Reduced to make responses more deterministic
     presencePenalty: 0.0, // Added to prevent topic drift
     frequencyPenalty: 0.0, // Added to maintain consistent language
   });

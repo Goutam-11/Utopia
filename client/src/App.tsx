@@ -19,9 +19,9 @@ import useRegisterUser from "./hooks/useRegisterUser.ts";
 
 function App() {
   const { connected, account } = useWallet();
-  useEffect(()=>{ if (connected && account) {
+  if (connected && account) {
     useRegisterUser();
-  }},[connected, account]);
+  }
   return (
     <Router>
       <ErrorBoundary>
