@@ -4,12 +4,14 @@ Utopia is a decentralized event management and ticketing platform that harnesses
 ain and AI to offer a seamless experience for event organizers and attendees. 
 [Video Link](https://youtu.be/U33PISp47U0)
 
-![Screenshot 2025-02-10 024011](https://github.com/user-attachments/assets/487a6a3b-1e9f-42af-b520-dade043b3f3c)
-
 ## 📦 VENICE AI ENDPOINT
 - [Venice AI](https://venice.ai/api/docs/introduction)
 - We use the "fluently-xl" model to generate the event images for the posters to use in the cards.
 - We used the uncensored Ai endpoint to generate the images.
+
+  ## 📦 HYPERBOLIC AI Based on Eigenlayer Endpoint
+- We use the Hyperbolic AI.
+- Our backend bot is being powered by Hyperbolic which using langchain open ai function to call Hyperbolic Model AVS based on Eigenlayer and generated out text data at the backend server file or Utopia.
 
 ## 🚀 Features
 - **NFT Ticketing:** Events and tickets are minted as **NFTs** on the **Base network**, preventing ticket duplication.
@@ -35,6 +37,8 @@ ain and AI to offer a seamless experience for event organizers and attendees.
 - **VENICE AI API:** For the uncensored Ai endpoint to generate event images for the posters to use in the cards.
 
 - [Aptos Contracts](https://explorer.aptoslabs.com/account/0x903a8c9e37c744674108ea208c81e60ff09d78c612ffa9df78396e99634f8204/modules/run/AptosEvent5/create_event?network=testnet)
+![Screenshot 2025-02-10 024011](https://github.com/user-attachments/assets/487a6a3b-1e9f-42af-b520-dade043b3f3c)
+
 
 ## 🛠️ Setup & Deployment
 1. Clone the repository:
