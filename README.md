@@ -32,7 +32,7 @@ ain and AI to offer a seamless experience for event organizers and attendees.
 - **Storage:** IPFS
 - **AI Models:** Langchain, Hyperbolic on eigenlayer
 - **Wallets:** MetaMask, Petra Wallet
-- **VENICE AI API:**For the uncensored Ai endpoint to generate event images for the posters to use in the cards.
+- **VENICE AI API:** For the uncensored Ai endpoint to generate event images for the posters to use in the cards.
 
 - [Aptos Contracts](https://explorer.aptoslabs.com/account/0x903a8c9e37c744674108ea208c81e60ff09d78c612ffa9df78396e99634f8204/modules/run/AptosEvent5/create_event?network=testnet)
 
